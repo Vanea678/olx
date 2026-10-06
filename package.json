@@ -1,0 +1,12 @@
+{
+  "name": "olx-marketplace",
+  "version": "1.0.0",
+  "description": "Повноцінний маркетплейс OLX з можливістю додавання, редагування, видалення, фільтрації та збереження оголошень",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": ["olx", "marketplace", "ukraine", "crud"],
+  "author": "",
+  "license": "ISC"
+}

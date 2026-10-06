@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OLX Україна — Дошка оголошень | Купуйте та продавайте безпечно</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- ВЕРХНЯ ШАПКА САЙТУ (HEADER) -->
+  <header class="header">
+    <div class="header-container">
+      <div class="logo-area" onclick="app.resetAllFilters()">
+        <span class="logo-text">olx</span>
+        <span class="logo-badge">UA</span>
+      </div>
+
+      <div class="header-actions">
+        <button class="nav-btn" id="btnFavoritesTab" onclick="app.toggleFavoritesTab()">
+          <span class="icon">❤️</span>
+          <span class="nav-btn-text">Обрані</span>
+          <span class="fav-badge" id="favCount">0</span>
+        </button>
+
+        <button class="btn btn-magic" onclick="app.quickAddRandomAd()" title="Швидко придумати та додати новий реалістичний товар">
+          <span>🎲</span> <span class="hide-mobile">Придумати товар</span>
+        </button>
+
+        <button class="btn btn-primary btn-add-ad" onclick="app.openCreateModal()">
+          <span class="btn-icon">+</span> Подати оголошення
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- СЕКЦІЯ ПОШУКУ ТА ФІЛЬТРІВ -->
+  <section class="search-section">
+    <div class="container">
+      <div class="search-bar-wrap">
+        <div class="search-input-group">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="searchInput" placeholder="Що шукаєте? Наприклад: навушники, iPhone, велосипед..." autocomplete="off">
+          <button class="btn-clear-search" id="btnClearSearch" title="Очистити">✕</button>
+        </div>
+
+        <div class="location-select-group">
+          <span class="location-icon">📍</span>
+          <select id="cityFilter">
+            <option value="">Вся Україна</option>
+            <option value="Київ">Київ</option>
+            <option value="Харків">Харків</option>
+            <option value="Одеса">Одеса</option>
+            <option value="Дніпро">Дніпро</option>
+            <option value="Львів">Львів</option>
+            <option value="Запоріжжя">Запоріжжя</option>
+            <option value="Вінниця">Вінниця</option>
+          </select>
+        </div>
+
+        <button class="btn btn-search" onclick="app.applyFilters()">Знайти</button>
+      </div>
+
+      <!-- КАТЕГОРІЇ (PILLS) -->
+      <div class="categories-carousel" id="categoriesPills">
+        <!-- Генерується динамічно JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ГОЛОВНИЙ КОНТЕНТ -->
+  <main class="main-content">
+    <div class="container">
+
+      <!-- ПАНЕЛЬ РОЗШИРЕНИХ ФІЛЬТРІВ ТА СОРТУВАННЯ -->
+      <div class="filters-toolbar">
+        <div class="filters-row">
+          <div class="filter-chip-group">
+            <label>Ціна, грн:</label>
+            <div class="price-inputs">
+              <input type="number" id="priceMin" placeholder="Від" min="0">
+              <span>—</span>
+              <input type="number" id="priceMax" placeholder="До" min="0">
+            </div>
+          </div>
+
+          <div class="filter-chip-group">
+            <label>Стан:</label>
+            <select id="conditionFilter">
+              <option value="">Всі стани</option>
+              <option value="Новий">Новий</option>
+              <option value="Ідеальний">Ідеальний</option>
+              <option value="Відмінний">Відмінний</option>
+              <option value="Вживаний">Вживаний</option>
+            </select>
+          </div>
+
+          <div class="filter-chip-group filter-checkbox">
+            <label>
+              <input type="checkbox" id="olxDeliveryOnly">
+              <span>Тільки з OLX Доставкою 📦</span>
+            </label>
+          </div>
+
+          <div class="filter-chip-group filter-sort">
+            <label>Сортування:</label>
+            <select id="sortBy">
+              <option value="newest">Найновіші</option>
+              <option value="price_asc">Найдешевші</option>
+              <option value="price_desc">Найдорожчі</option>
+            </select>
+          </div>
+
+          <button class="btn btn-outline btn-reset" onclick="app.resetAllFilters()">Скинути все</button>
+        </div>
+
+        <div class="active-tab-title-wrap">
+          <h2 id="sectionTitle">Останні оголошення</h2>
+          <span class="results-count" id="resultsCount">0 оголошень</span>
+        </div>
+      </div>
+
+      <!-- СІТКА ОГОЛОШЕНЬ -->
+      <div class="ads-grid" id="adsGrid">
+        <!-- Картки генеруються JS -->
+      </div>
+
+      <!-- ПОВІДОМЛЕННЯ, ЯКЩО НІЧОГО НЕ ЗНАЙДЕНО -->
+      <div class="empty-state" id="emptyState" style="display: none;">
+        <div class="empty-icon">🔍</div>
+        <h3>Оголошень не знайдено</h3>
+        <p>Спробуйте змінити критерії пошуку або додайте перше оголошення прямо зараз!</p>
+        <button class="btn btn-primary" onclick="app.openCreateModal()">+ Додати своє оголошення</button>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- МОДАЛЬНЕ ВІКНО: СТВОРЕННЯ / РЕДАГУВАННЯ ОГОЛОШЕННЯ -->
+  <div class="modal-backdrop" id="modalAdForm">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h3 id="formModalTitle">Подати оголошення</h3>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <button type="button" class="btn btn-outline btn-sm" onclick="app.generateRandomAdForm()" title="Придумати назву, опис, фото та ціну">
+            ✨ Придумати товар (автозаповнення)
+          </button>
+          <button class="modal-close" onclick="app.closeModal('modalAdForm')">✕</button>
+        </div>
+      </div>
+
+      <form id="adForm" onsubmit="app.handleFormSubmit(event)">
+        <input type="hidden" id="formAdId">
+
+        <div class="form-group">
+          <label for="formTitle">Заголовок оголошення <span class="required">*</span></label>
+          <input type="text" id="formTitle" required maxlength="70" placeholder="Наприклад: Бездротові навушники Sony WH-1000XM4">
+          <small class="form-hint"><span id="titleCounter">0</span>/70 символів (додайте ключові слова для кращого пошуку)</small>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label for="formCategory">Категорія <span class="required">*</span></label>
+            <select id="formCategory" required>
+              <option value="">Оберіть категорію</option>
+              <option value="Електроніка">Електроніка</option>
+              <option value="Хобі та спорт">Хобі та спорт</option>
+              <option value="Мода і стиль">Мода і стиль</option>
+              <option value="Дім і сад">Дім і сад</option>
+              <option value="Авто">Авто</option>
+              <option value="Нерухомість">Нерухомість</option>
+              <option value="Дитячий світ">Дитячий світ</option>
+              <option value="Тварини">Тварини</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="formCondition">Стан товару <span class="required">*</span></label>
+            <select id="formCondition" required>
+              <option value="Новий">Новий</option>
+              <option value="Ідеальний">Ідеальний</option>
+              <option value="Відмінний" selected>Відмінний</option>
+              <option value="Вживаний">Вживаний</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label for="formPrice">Ціна (грн) <span class="required">*</span></label>
+            <input type="number" id="formPrice" required min="0" placeholder="7900">
+          </div>
+
+          <div class="form-group form-checkbox-single">
+            <label class="checkbox-container">
+              <input type="checkbox" id="formNegotiable">
+              <span class="checkmark"></span>
+              Можливий торг
+            </label>
+          </div>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label for="formCity">Місто <span class="required">*</span></label>
+            <select id="formCity" required>
+              <option value="Київ">Київ</option>
+              <option value="Львів">Львів</option>
+              <option value="Харків">Харків</option>
+              <option value="Одеса">Одеса</option>
+              <option value="Дніпро">Дніпро</option>
+              <option value="Запоріжжя">Запоріжжя</option>
+              <option value="Вінниця">Вінниця</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="formDistrict">Район або вулиця</label>
+            <input type="text" id="formDistrict" placeholder="Наприклад: Подільський р-н">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Фото товару</label>
+          <div class="image-upload-tabs">
+            <input type="file" id="formPhotoFile" accept="image/*" class="file-input" onchange="app.handleImageFileUpload(event)">
+            <div class="file-upload-box" onclick="document.getElementById('formPhotoFile').click()">
+              <span class="upload-icon">📷</span>
+              <span>Завантажити фото з пристрою</span>
+            </div>
+            <div class="or-separator">або вкажіть URL посилання:</div>
+            <input type="url" id="formPhotoUrl" placeholder="https://example.com/photo.jpg" oninput="app.handleImageUrlInput()">
+          </div>
+          <div class="image-preview-container" id="imagePreviewContainer" style="display: none;">
+            <img id="imagePreview" src="" alt="Попередній перегляд">
+            <button type="button" class="btn-remove-preview" onclick="app.clearFormImage()">✕ Видалити фото</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="formDescription">Опис товару <span class="required">*</span></label>
+          <textarea id="formDescription" required rows="6" placeholder="Опишіть характеристики, стан, комплектацію, причину продажу та умови доставки..."></textarea>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label for="formSellerName">Ваше ім'я <span class="required">*</span></label>
+            <input type="text" id="formSellerName" required placeholder="Олександр">
+          </div>
+
+          <div class="form-group">
+            <label for="formPhone">Номер телефону <span class="required">*</span></label>
+            <input type="tel" id="formPhone" required placeholder="+380 67 123 45 67">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Способи доставки:</label>
+          <div class="delivery-checkboxes">
+            <label class="checkbox-container">
+              <input type="checkbox" id="formDeliveryOlx" checked>
+              <span class="checkmark"></span>
+              OLX Доставка (Безпечна угода)
+            </label>
+            <label class="checkbox-container">
+              <input type="checkbox" id="formDeliveryNovaPoshta" checked>
+              <span class="checkmark"></span>
+              Нова Пошта
+            </label>
+            <label class="checkbox-container">
+              <input type="checkbox" id="formDeliveryMeet" checked>
+              <span class="checkmark"></span>
+              Самовивіз / Особиста зустріч
+            </label>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="app.closeModal('modalAdForm')">Скасувати</button>
+          <button type="submit" class="btn btn-primary" id="btnSubmitForm">Опублікувати</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- МОДАЛЬНЕ ВІКНО: ПОВНИЙ ПЕРЕГЛЯД ОГОЛОШЕННЯ -->
+  <div class="modal-backdrop" id="modalAdDetails">
+    <div class="modal-window modal-details-window">
+      <div class="modal-header">
+        <span class="badge-cat" id="detailCategory">Електроніка</span>
+        <button class="modal-close" onclick="app.closeModal('modalAdDetails')">✕</button>
+      </div>
+
+      <div class="modal-body details-layout">
+        <div class="details-left">
+          <div class="detail-image-box">
+            <img id="detailImage" src="" alt="Фото товару">
+          </div>
+          <div class="detail-description-box">
+            <h4>Опис</h4>
+            <div id="detailDescription" class="detail-text"></div>
+          </div>
+        </div>
+
+        <div class="details-right">
+          <div class="detail-meta-box">
+            <div class="detail-date-city" id="detailDateCity">Опубліковано сьогодні в Києві</div>
+            <h2 id="detailTitle">Назва товару</h2>
+            <div class="detail-price-box">
+              <span class="detail-price" id="detailPrice">7 900 грн</span>
+              <span class="detail-negotiable-badge" id="detailNegotiable">Договірна</span>
+            </div>
+            <div class="detail-condition-tag" id="detailCondition">Стан: Відмінний</div>
+          </div>
+
+          <div class="detail-seller-box">
+            <div class="seller-info-row">
+              <div class="seller-avatar">👤</div>
+              <div>
+                <strong id="detailSellerName">Олександр</strong>
+                <div class="seller-meta">На OLX з жовтня 2026</div>
+              </div>
+            </div>
+
+            <div class="seller-contact-actions">
+              <button class="btn btn-show-phone" id="btnShowPhone" onclick="app.revealPhone()">
+                <span class="icon">📞</span> <span id="phoneDisplay">Показати телефон</span>
+              </button>
+              <button class="btn btn-chat" onclick="app.openChatModal()">
+                <span class="icon">💬</span> Написати продавцю
+              </button>
+            </div>
+          </div>
+
+          <div class="detail-delivery-box">
+            <h4>Варіанти доставки та оплати:</h4>
+            <ul id="detailDeliveryList">
+              <!-- Генерується JS -->
+            </ul>
+          </div>
+
+          <div class="detail-manage-actions">
+            <button class="btn btn-outline" id="btnEditFromDetails" onclick="app.editFromDetails()">✏️ Редагувати</button>
+            <button class="btn btn-danger-outline" id="btnDeleteFromDetails" onclick="app.deleteFromDetails()">🗑️ Видалити</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- МОДАЛЬНЕ ВІКНО: ЧАТ З ПРОДАВЦЕМ -->
+  <div class="modal-backdrop" id="modalChat">
+    <div class="modal-window modal-chat-window">
+      <div class="modal-header">
+        <h3 id="chatModalTitle">Чат з продавцем</h3>
+        <button class="modal-close" onclick="app.closeModal('modalChat')">✕</button>
+      </div>
+      <div class="chat-messages" id="chatMessages">
+        <div class="chat-bubble seller">
+          Привіт! Якщо маєте запитання щодо товару або доставки — пишіть, з радістю відповім!
+        </div>
+      </div>
+      <form class="chat-input-bar" onsubmit="app.sendChatMessage(event)">
+        <input type="text" id="chatInput" placeholder="Напишіть ваше запитання..." autocomplete="off" required>
+        <button type="submit" class="btn btn-primary">Надіслати</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ДІАЛОГ ПІДТВЕРДЖЕННЯ ВИДАЛЕННЯ -->
+  <div class="modal-backdrop" id="modalConfirmDelete">
+    <div class="modal-window modal-confirm-window">
+      <div class="modal-header">
+        <h3>Підтвердження видалення</h3>
+        <button class="modal-close" onclick="app.closeModal('modalConfirmDelete')">✕</button>
+      </div>
+      <div class="modal-body">
+        <p>Ви дійсно бажаєте видалити це оголошення? Цю дію неможливо буде скасувати.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="app.closeModal('modalConfirmDelete')">Скасувати</button>
+        <button class="btn btn-danger" id="btnConfirmDeleteAction">Так, видалити</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST ПОВІДОМЛЕННЯ -->
+  <div class="toast" id="toast"></div>
+
+  <!-- ПІДВАЛ (FOOTER) -->
+  <footer class="footer">
+    <div class="container footer-content">
+      <div class="footer-col">
+        <div class="logo-text footer-logo">olx</div>
+        <p>Платформа №1 в Україні для швидких і безпечних покупок та продажів.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Розділи</h4>
+        <a href="javascript:void(0)" onclick="app.filterByCategory('Електроніка')">Електроніка</a>
+        <a href="javascript:void(0)" onclick="app.filterByCategory('Хобі та спорт')">Хобі та спорт</a>
+        <a href="javascript:void(0)" onclick="app.filterByCategory('Мода і стиль')">Мода і стиль</a>
+        <a href="javascript:void(0)" onclick="app.filterByCategory('Дім і сад')">Дім і сад</a>
+      </div>
+      <div class="footer-col">
+        <h4>Керування базою</h4>
+        <button class="btn btn-outline btn-sm" onclick="app.restoreSampleData()">Відновити початкові оголошення</button>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="container">
+        © 2026 OLX Clone UA. Всі права захищено.
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/sample-data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
